@@ -4,6 +4,13 @@ import random as rnd
 import scipy.signal as sig
 
 
+# Добавление шума
+def addSomeNoise(f, n, t):
+    for i in range(n):
+        f += rnd.random() * np.cos(2 * np.pi * rnd.random() * t)
+    return f
+
+
 # ДПФ
 def dft(signal):
     N = len(signal)
@@ -48,6 +55,31 @@ def calculateFirCoeffs(cutoff_freq, num_taps):
     return coefficients
 
 
+def compute_fir_filter_coefficients(num_taps, cutoff_freq, sampling_rate):
+    coefficients = []
+
+    # Вычисляем центральный индекс
+    center = num_taps // 2
+
+    # Вычисляем значение сдвига частоты среза
+    normalized_freq = cutoff_freq / sampling_rate
+
+    # Вычисляем коэффициенты фильтра
+    for n in range(num_taps):
+        # Вычисляем смещение относительно центра
+        offset = n - center
+
+        if offset == 0:
+            coefficient = 2 * normalized_freq
+        else:
+            coefficient = np.sin(2 * np.pi * normalized_freq * offset) / (np.pi * offset)
+        
+        # Добавляем коэффициент в массив
+        coefficients.append(coefficient)
+    
+    return coefficients
+
+
 # КИХ-фильтр
 def firFilter(signal, coefficients):
     output = []
@@ -61,26 +93,26 @@ def firFilter(signal, coefficients):
 
 
 # КИХ-фильтр
-def fir(In, sizeIn):
-    N = 20;  
-    Fd = 40;  # Частота дискретизации
-    Fs = 1000;  # Частота полосы пропускаяния
-    Fx = 100;  # Частота полосы затухания
+def fir(In, sizeIn, N, Fd, Fs, Fx):
+    # N = 20
+    # Fd = 40 # Частота дискретизации
+    # Fs = 1000 # Частота полосы пропускания
+    # Fx = 100 # Частота полосы затухания
 
-    H = np.full(N, 0.0);  # Импульсная характеристика фильтра
-    H_id = np.full(N, 0.0);  # Идеальная импульсная характеристика фильтра
-    W = np.full(N, 0.0);  # Весовая функция
+    H = np.full(N, 0.0)  # Импульсная характеристика фильтра
+    H_id = np.full(N, 0.0)  # Идеальная импульсная характеристика фильтра
+    W = np.full(N, 0.0)  # Весовая функция
 
-    Fc = (Fs + Fx) / (2 * Fd);
+    Fc = (Fs + Fx) / (2 * Fd)
 
     for i in range(N):
         if (i == 0):
-            H_id[i] = 2 * np.pi * Fc;
+            H_id[i] = 2 * np.pi * Fc
         else:
-            H_id[i] = np.sin(2 * np.pi * Fc * i) / (np.pi * i);
+            H_id[i] = np.sin(2 * np.pi * Fc * i) / (np.pi * i)
         # Весовая функция Блэкмана
-        W[i] = 0.42 - 0.5 * np.cos((2 * np.pi * i) /(N - 1)) + 0.08 * np.cos((4 * np.pi * i) / (N - 1));
-        H[i] = H_id[i] * W[i];
+        W[i] = 0.42 - 0.5 * np.cos((2 * np.pi * i) / (N - 1)) + 0.08 * np.cos((4 * np.pi * i) / (N - 1))
+        H[i] = H_id[i] * W[i]
 
     # Нормировка импульсной характеристики
     SUM = 0.0
