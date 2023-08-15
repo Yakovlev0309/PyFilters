@@ -5,9 +5,9 @@ import scipy.signal as sig
 
 
 # Добавление шума
-def addSomeNoise(f, n, t):
+def addSomeNoise(f, n, t, freq, ampl):
     for i in range(n):
-        f += rnd.random() * np.cos(2 * np.pi * rnd.random() * t)
+        f += rnd.random() * np.cos(2 * np.pi * rnd.random() * freq * t)
     return f
 
 
@@ -93,39 +93,34 @@ def firFilter(signal, coefficients):
 
 
 # КИХ-фильтр
-def fir(In, sizeIn, N, Fd, Fs, Fx):
-    # N = 20
-    # Fd = 40 # Частота дискретизации
-    # Fs = 1000 # Частота полосы пропускания
-    # Fx = 100 # Частота полосы затухания
+def fir(In, sizeIn, filterSize, sampleRate, passbandFreq, attenuationFreq):
+    H = np.full(filterSize, 0.0)  # Импульсная характеристика фильтра
+    H_id = np.full(filterSize, 0.0)  # Идеальная импульсная характеристика фильтра
+    W = np.full(filterSize, 0.0)  # Весовая функция
 
-    H = np.full(N, 0.0)  # Импульсная характеристика фильтра
-    H_id = np.full(N, 0.0)  # Идеальная импульсная характеристика фильтра
-    W = np.full(N, 0.0)  # Весовая функция
+    Fc = (passbandFreq + attenuationFreq) / (2 * sampleRate)
 
-    Fc = (Fs + Fx) / (2 * Fd)
-
-    for i in range(N):
+    for i in range(filterSize):
         if (i == 0):
             H_id[i] = 2 * np.pi * Fc
         else:
             H_id[i] = np.sin(2 * np.pi * Fc * i) / (np.pi * i)
         # Весовая функция Блэкмана
-        W[i] = 0.42 - 0.5 * np.cos((2 * np.pi * i) / (N - 1)) + 0.08 * np.cos((4 * np.pi * i) / (N - 1))
+        W[i] = 0.42 + 0.5 * np.cos((2 * np.pi * i) / (filterSize - 1)) + 0.08 * np.cos((4 * np.pi * i) / (filterSize - 1))
         H[i] = H_id[i] * W[i]
 
     # Нормировка импульсной характеристики
     SUM = 0.0
-    for i in range(N):
+    for i in range(filterSize):
         SUM += H[i]
-    for i in range(N):
+    for i in range(filterSize):
         H[i] /= SUM  # Сумма коэффициентов равна 1
     
     # Фильтрация
     Out = np.arange(sizeIn)
     for i in range(sizeIn):
         Out[i] = 0
-        for j in range(N - 1):
+        for j in range(filterSize - 1):
             if (i - j >= 0):
                 Out[i] += H[j] * In[i - j]
 
