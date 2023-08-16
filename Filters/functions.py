@@ -7,7 +7,7 @@ import scipy.signal as sig
 # Добавление шума
 def addSomeNoise(f, n, t, freq, ampl):
     for i in range(n):
-        f += rnd.random() * np.cos(2 * np.pi * rnd.random() * freq * t)
+        f += rnd.random() * np.cos(2 * np.pi * rnd.random() * freq * t * i)
     return f
 
 
@@ -92,19 +92,20 @@ def firFilter(signal, coefficients):
     return output
 
 
-# КИХ-фильтр
-def fir(In, sizeIn, filterSize, sampleRate, passbandFreq, attenuationFreq):
+def getFilterCoeffs(filterSize, sampleRate, passbandFreq, stopbandFreq):
     H = np.full(filterSize, 0.0)  # Импульсная характеристика фильтра
     H_id = np.full(filterSize, 0.0)  # Идеальная импульсная характеристика фильтра
     W = np.full(filterSize, 0.0)  # Весовая функция
 
-    Fc = (passbandFreq + attenuationFreq) / (2 * sampleRate)
+    Fc = (passbandFreq + stopbandFreq) / (2 * sampleRate)  # Расчёт импульсной характеристики фильтра
 
     for i in range(filterSize):
+        # Low-pass
         if (i == 0):
             H_id[i] = 2 * np.pi * Fc
         else:
             H_id[i] = np.sin(2 * np.pi * Fc * i) / (np.pi * i)
+
         # Весовая функция Блэкмана
         W[i] = 0.42 + 0.5 * np.cos((2 * np.pi * i) / (filterSize - 1)) + 0.08 * np.cos((4 * np.pi * i) / (filterSize - 1))
         H[i] = H_id[i] * W[i]
@@ -116,12 +117,19 @@ def fir(In, sizeIn, filterSize, sampleRate, passbandFreq, attenuationFreq):
     for i in range(filterSize):
         H[i] /= SUM  # Сумма коэффициентов равна 1
     
+    return H
+
+
+# КИХ-фильтр
+def fir(In, coeffs):
+    filterSize = len(coeffs)
+    sizeIn = len(In)
     # Фильтрация
-    Out = np.arange(sizeIn)
+    Out = np.arange(0, sizeIn, dtype=complex)
     for i in range(sizeIn):
         Out[i] = 0
         for j in range(filterSize - 1):
             if (i - j >= 0):
-                Out[i] += H[j] * In[i - j]
+                Out[i] += coeffs[j] * In[i - j]
 
-    return Out
+    return np.asarray(Out, complex)

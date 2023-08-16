@@ -1,6 +1,7 @@
 from numpy import cos, sin, pi, absolute, arange
 from scipy.signal import kaiserord, lfilter, firwin, freqz
 from pylab import figure, clf, plot, xlabel, ylabel, xlim, ylim, title, grid, axes, show
+import functions as func
 
 
 #------------------------------------------------
@@ -9,38 +10,49 @@ from pylab import figure, clf, plot, xlabel, ylabel, xlim, ylim, title, grid, ax
 
 sample_rate = 100.0
 nsamples = 400
-t = arange(nsamples) / sample_rate
-x = cos(2*pi*0.5*t) + 0.2*sin(2*pi*2.5*t+0.1) + \
-        0.2*sin(2*pi*15.3*t) + 0.1*sin(2*pi*16.7*t + 0.1) + \
-            0.1*sin(2*pi*23.45*t+.8)
+ampl = 15
+freq = 5
+noiseCount = 100
 
+t = arange(nsamples) / sample_rate
+# x = cos(2*pi*0.5*t) + 0.2*sin(2*pi*2.5*t+0.1) + \
+#         0.2*sin(2*pi*15.3*t) + 0.1*sin(2*pi*16.7*t + 0.1) + \
+#             0.1*sin(2*pi*23.45*t+.8)
+
+
+x = ampl * sin(2 * pi * freq * t)
+x = func.addSomeNoise(x, noiseCount, t, freq, ampl)
 
 #------------------------------------------------
 # Create a FIR filter and apply it to x.
 #------------------------------------------------
 
-# The Nyquist rate of the signal.
+# Частота Найквиста
 nyq_rate = sample_rate / 2.0
 
 # The desired width of the transition from pass to stop,
 # relative to the Nyquist rate.  We'll design the filter
 # with a 5 Hz transition width.
-width = 5.0/nyq_rate
+width = 5.0 / nyq_rate  # Ширина полосы пропускания
 
 # The desired attenuation in the stop band, in dB.
 ripple_db = 60.0
 
 # Compute the order and Kaiser parameter for the FIR filter.
-N, beta = kaiserord(ripple_db, width)
+# N, beta = kaiserord(ripple_db, width)
+N = 50
 
 # The cutoff frequency of the filter.
 cutoff_hz = 10.0
 
 # Use firwin with a Kaiser window to create a lowpass FIR filter.
-taps = firwin(N, cutoff_hz/nyq_rate, window=('kaiser', beta))
+# taps = firwin(N, cutoff_hz/nyq_rate, window=('kaiser', beta))
+# taps = func.getFilterCoeffs(N, sample_rate, width, width)
+taps = func.compute_fir_filter_coefficients(N, cutoff_hz, sample_rate)
 
 # Use lfilter to filter x with the FIR filter.
-filtered_x = lfilter(taps, 1.0, x)
+# filtered_x = lfilter(taps, 1.0, x)
+filtered_x = func.fir(x, taps)
 
 #------------------------------------------------
 # Plot the FIR filter coefficients.
