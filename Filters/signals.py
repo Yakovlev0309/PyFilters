@@ -1,6 +1,5 @@
 import functions as func
-from functions import np, plt, sig, rnd
-import scipy
+from functions import np, plt
 
 
 def calculate_cutoff_frequency(signal, sampling_freq):
@@ -60,8 +59,8 @@ stopbandFreq = passbandFreq / 2.0
 
 # coeffs = func.compute_fir_filter_coefficients(filterSize, cutoffFreq, sampleRate)
 # coeffs = func.calculateFirCoeffs(cutoffFreq, filterSize)
-coeffs = sig.firwin(filterSize, cutoffFreq, fs=sampleRate)
-# coeffs = func.getFilterCoeffs(filterSize, sampleRate, passbandFreq, stopbandFreq)
+# coeffs = sig.firwin(filterSize, cutoffFreq, fs=sampleRate)
+coeffs = func.getFilterCoeffs(filterSize, sampleRate, passbandFreq, stopbandFreq)
 
 # fFiltered = func.firFilter(ft, coeffs)
 fFiltered = func.fir(ft, coeffs)

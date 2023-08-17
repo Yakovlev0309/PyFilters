@@ -1,7 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import random as rnd
-import scipy.signal as sig
 
 
 # Добавление шума

@@ -42,12 +42,12 @@ ripple_db = 60.0
 # N, beta = kaiserord(ripple_db, width)
 N = 50
 
-# The cutoff frequency of the filter.
+# Частота среза фильтра
 cutoff_hz = 10.0
 
 # Use firwin with a Kaiser window to create a lowpass FIR filter.
 # taps = firwin(N, cutoff_hz/nyq_rate, window=('kaiser', beta))
-# taps = func.getFilterCoeffs(N, sample_rate, width, width)
+# taps = func.getFilterCoeffs(N, sample_rate, width, cutoff_hz * 1.2)
 taps = func.compute_fir_filter_coefficients(N, cutoff_hz, sample_rate)
 
 # Use lfilter to filter x with the FIR filter.
@@ -109,5 +109,9 @@ plot(t[N-1:]-delay, filtered_x[N-1:], 'g', linewidth=4)
 
 xlabel('t')
 grid(True)
+
+figure(num="Частотгая область")
+plot(func.np.abs(func.dft(taps)))
+grid()
 
 show()
