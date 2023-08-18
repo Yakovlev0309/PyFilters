@@ -35,7 +35,7 @@ signal = ampl * np.sin(2 * np.pi * freq * t)
 signal = func.addSomeNoise(signal, noiseCount, t, freq, ampl)
 
 decimation = 2		# any integer; powers of 2 work best.
-stages = 5			# pipelined I and C stages
+stages = 2			# pipelined I and C stages
 
 ## Calculate normalising gain
 gain = (decimation * 1) ** stages
@@ -60,11 +60,6 @@ for (s, v) in enumerate(signal):
 			z = combs[c].update(z)
 			j = z
 		filtered.append(j / gain) # normalise the gain
-
-plt.plot(signal, 'g')
-plt.plot(filtered, 'b')
-plt.grid()
-plt.show()
 
 ## Crude function to FFT and slice data, with 20log10 result
 def fft_this(data):

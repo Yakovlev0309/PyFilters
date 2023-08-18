@@ -110,7 +110,7 @@ plot(t[N-1:]-delay, filtered_x[N-1:], 'g', linewidth=4)
 xlabel('t')
 grid(True)
 
-figure(num="Частотгая область")
+figure(num="Частотная область")
 plot(func.np.abs(func.dft(taps)))
 grid()
 
