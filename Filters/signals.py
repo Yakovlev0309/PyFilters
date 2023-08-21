@@ -1,5 +1,6 @@
 import functions as func
-from functions import np, plt
+from functions import np
+import matplotlib.pyplot as plt
 
 
 def calculate_cutoff_frequency(signal, sampling_freq):

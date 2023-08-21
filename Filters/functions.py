@@ -23,7 +23,7 @@ def dft(signal):
 
 
 # ДПФ обратное
-def dftForward(x):
+def dftInverse(x):
     size = len(x)
     result = [complex(0.0, 0.0) for _ in range(size)]
 
@@ -131,3 +131,25 @@ def fir(In, coeffs):
                 Out[i] += coeffs[j] * In[i - j]
 
     return np.asarray(Out, complex)
+
+
+# Свёртка
+def convolution(signal, kernel):
+    signal_length = len(signal)
+    kernel_length = len(kernel)
+    result_length = signal_length + kernel_length - 1
+    result = [0] * result_length
+    
+    # Определение центра свертки
+    center = kernel_length // 2
+    
+    # Перебор всех элементов результата
+    for i in range(result_length):
+        # Перебор всех элементов сигнала и ядра для текущего элемента результата
+        for j in range(signal_length):
+            # Проверка, чтобы индекс находился в пределах массива сигнала
+            if i - j >= 0 and i - j < kernel_length:
+                # Выполнение свертки путем умножения элементов сигнала и ядра
+                result[i] += signal[j] * kernel[i - j]
+    
+    return result
