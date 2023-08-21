@@ -1,31 +1,7 @@
 import numpy as np
 import functions as func
 import matplotlib.pyplot as plt
-
-
-def maf_conv(signal, m=2):
-    """
-    Calculate moving average filter via convolution
-    Parameters
-    ----------
-    m : int
-        moving average step
-    """
-    coe = np.ones(m) / m
-    return np.convolve(signal, coe, mode='same')    
-
-
-def maf(signal, m=2):
-    """
-    Calculate moving average filter via convolution
-    Parameters
-    ----------
-    m : int
-        moving average step
-    """
-    # coe = np.ones(m) / m
-    coe = func.compute_fir_filter_coefficients(m, 10.0, sample_rate)
-    return func.convolution(signal, coe)
+from cic_functions import maf, maf_conv
 
 
 sample_rate = 100.0
@@ -49,7 +25,7 @@ plt.plot(signal, 'g')
 plt.plot(filtered, 'b', linewidth=3)
 plt.title(f'maf_conv, m = {m}')
 
-filtered = maf(signal, m)
+filtered = maf(signal, sample_rate, m)
 
 plt.figure()
 plt.plot(signal, 'g')

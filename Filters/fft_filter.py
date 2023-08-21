@@ -26,6 +26,14 @@ def butterworth_lowpass_filter(signal, cutoff_freq, sampling_freq):
     return np.real(filtered_signal)
 
 
+def butterworth(signal, cutoffFreq):
+    spectrum = func.dft(signal);
+    for i in range(len(signal)):
+        if np.abs(spectrum[i]) <= cutoffFreq:
+            spectrum[i] = 0
+    return func.dftInverse(spectrum)
+
+
 sample_rate = 100.0
 nsamples = 200
 ampl = 15
@@ -41,6 +49,7 @@ signal = ampl * np.sin(2 * np.pi * freq * t)
 signal = func.addSomeNoise(signal, noiseCount, t, freq, ampl)
 
 filtered = butterworth_lowpass_filter(signal, cutoffFreq, sample_rate)
+# filtered = butterworth(signal, cutoffFreq)
 
 
 plt.plot(signal, 'g')
