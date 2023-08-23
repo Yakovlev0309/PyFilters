@@ -15,10 +15,10 @@ freq = 5
 noiseCount = 100
 
 t = arange(nsamples) / sample_rate
+# t[0] = sample_rate
 # x = cos(2*pi*0.5*t) + 0.2*sin(2*pi*2.5*t+0.1) + \
 #         0.2*sin(2*pi*15.3*t) + 0.1*sin(2*pi*16.7*t + 0.1) + \
 #             0.1*sin(2*pi*23.45*t+.8)
-
 
 x = ampl * sin(2 * pi * freq * t)
 x = func.addSomeNoise(x, noiseCount, t, freq, ampl)

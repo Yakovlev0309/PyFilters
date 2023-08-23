@@ -16,7 +16,7 @@ t[0] = sample_rate
 signal = ampl * np.sin(2 * np.pi * freq * t)
 signal = func.addSomeNoise(signal, noiseCount, t, freq, ampl)
 
-m = 10
+m = 100
 
 filtered = maf_conv(signal, m)
 
@@ -27,10 +27,17 @@ plt.title(f'maf_conv, m = {m}')
 
 filtered = maf(signal, sample_rate, m)
 
+# Удаление фазовых задержек перед и после сигнала (фазовая задержка равна m / 2)
+del filtered[:m//2]
+del filtered[nsamples:nsamples+m//2]
+
 plt.figure()
 plt.plot(signal, 'g')
 plt.plot(filtered, 'b', linewidth=3)
 plt.title(f'maf (FIR), m = {m}')
+
+print(len(signal))
+print(len(filtered))
 
 hfq = np.zeros(signal.size)
 for i in range(signal.size):

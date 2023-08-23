@@ -14,7 +14,7 @@ t = np.arange(nsamples) / sample_rate
 # x = cos(2*pi*0.5*t) + 0.2*sin(2*pi*2.5*t+0.1) + \
 #         0.2*sin(2*pi*15.3*t) + 0.1*sin(2*pi*16.7*t + 0.1) + \
 #             0.1*sin(2*pi*23.45*t+.8)
-
+t[0] = sample_rate
 
 x = ampl * np.sin(2 * np.pi * freq * t)
 x = func.addSomeNoise(x, noiseCount, t, freq, ampl)
