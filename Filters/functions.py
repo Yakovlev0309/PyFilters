@@ -1,5 +1,6 @@
 import numpy as np
 import random as rnd
+import window_functions as wifu
 
 
 # Добавление шума
@@ -7,6 +8,48 @@ def addSomeNoise(f, n, t, freq, ampl):
     for i in range(n):
         f += rnd.random() * np.cos(2 * np.pi * rnd.random() * freq * t * i)
     return f
+
+
+def getBandPassFilterCoeffs(filterSize, lowCutoffFreq, highCutoffFreq, sampleRate):
+    coefficients = np.zeros((filterSize))
+
+    center = filterSize / 2
+
+    lowNormalizedCutoffFreq = lowCutoffFreq / sampleRate
+    highNormalizedCutoffFreq = highCutoffFreq / sampleRate
+
+    for n in range(filterSize):
+        offset = n - center
+
+        if offset == 0:
+            coeff = 2 * (highNormalizedCutoffFreq - lowNormalizedCutoffFreq)
+        else:
+            coeff = (np.sin(2 * np.pi * highNormalizedCutoffFreq * offset) - np.sin(2 * np.pi * lowNormalizedCutoffFreq * offset)) / (np.pi * offset)
+        
+        coeff *= wifu.flapTopWindow(n, filterSize)
+
+        coefficients[n] = coeff
+
+    return coefficients
+
+
+def applyFirFilter(signal, coeffs):
+    N = signal.size
+    M = coeffs.size
+    newSize = (N + M) if (M % 2 == 0) else (N + M - 1)
+    y = np.zeros((newSize))
+    for n in range(newSize):
+        for k in range(M):
+            if n - k >= 0 and n - k < N:
+                y[n] += coeffs[k] * signal[n - k]
+
+    return y
+
+
+def compensatePhaseDelay(signal, filterSize):
+    withoutDelays = signal
+    withoutDelays = withoutDelays[filterSize//2:signal.size - filterSize//2]
+    return withoutDelays
 
 
 # ДПФ

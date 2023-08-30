@@ -4,6 +4,16 @@ import matplotlib.pyplot as plt
 from cic_functions import CicFilter, maf, maf_conv
 
 
+def moving_average_filter(input, window_size):
+    output = []
+    for i in range(len(input)):
+        if i < window_size - 1:
+            output.append(sum(input[:i+1]) / (i+1))
+        else:
+            output.append(sum(input[i-window_size+1:i+1]) / window_size)
+    return output
+
+
 sample_rate = 100.0
 nsamples = 200
 ampl = 15
@@ -18,7 +28,7 @@ t[0] = sample_rate
 signal = ampl * np.sin(2 * np.pi * freq * t)
 signal = func.addSomeNoise(signal, noiseCount, t, freq, ampl)
 
-filterSize = 5
+filterSize = 10
 
 decimation = 2
 interpolation = 2
@@ -39,7 +49,8 @@ plt.plot(filtered)
 plt.title(f'(2) decimation = {decimation}')
 plt.grid()
 
-filtered = maf(filtered, sample_rate, filterSize)
+# filtered = maf(filtered, sample_rate, filterSize)
+filtered = moving_average_filter(filtered, filterSize)
 cicFilter.x = filtered
 plt.subplot(2, 2, 3)
 plt.plot(filtered)
@@ -52,6 +63,7 @@ plt.subplot(2, 2, 4)
 plt.plot(filtered)
 plt.title(f'(4) interpolation = {interpolation}')
 plt.grid()
+
 
 
 plt.figure()
