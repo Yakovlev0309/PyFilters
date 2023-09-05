@@ -28,45 +28,34 @@ t[0] = sample_rate
 signal = ampl * np.sin(2 * np.pi * freq * t)
 signal = func.addSomeNoise(signal, noiseCount, t, freq, ampl)
 
-filterSize = 10
+filterSize = 100
 
 decimation = 2
-interpolation = 2
-filterOrder = 1
+filterOrder = 2
 
 plt.figure()
-plt.subplot(2, 2, 1)
+plt.subplot(3, 1, 1)
 plt.plot(signal)
 plt.title('(1) signal')
 plt.grid()
 
 cicFilter = CicFilter(signal)
-filtered = cicFilter.interpolator(interpolation, filterOrder)
-cicFilter.x = filtered
-plt.subplot(2, 2, 2)
-plt.plot(filtered)
-plt.title(f'(2) decimation = {decimation}')
-plt.grid()
-
-# filtered = maf(filtered, sample_rate, filterSize)
-filtered = moving_average_filter(filtered, filterSize)
-cicFilter.x = filtered
-plt.subplot(2, 2, 3)
-plt.plot(filtered)
-plt.title(f'(3) filter size = {filterSize}')
-plt.grid()
-
 filtered = cicFilter.decimator(decimation, filterOrder)
-cicFilter.x = filtered
-plt.subplot(2, 2, 4)
+plt.subplot(3, 1, 2)
 plt.plot(filtered)
-plt.title(f'(4) interpolation = {interpolation}')
+plt.title(f'(2) decimator = {decimation}')
 plt.grid()
 
-
+coeffs = func.getBandPassFilterCoeffs(filterSize, 0, cutoffFreq, sample_rate)
+filtered = func.applyFirFilter(filtered, coeffs)
+filtered = func.compensatePhaseDelay(filtered, filterSize)
+plt.subplot(3, 1, 3)
+plt.plot(filtered)
+plt.title('(3) filtered')
+plt.grid()
 
 plt.figure()
 plt.plot(signal, 'g')
-plt.plot(filtered, 'b', linewidth=2)
+plt.plot(np.linspace(0, signal.size, filtered.size), filtered, 'b', linewidth=2)
 plt.grid()
 plt.show()
